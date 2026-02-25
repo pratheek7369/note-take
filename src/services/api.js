@@ -1,4 +1,6 @@
-// MockAPI Base URL
+// ==============================
+// MOCK API BASE URL
+// ==============================
 const MOCKAPI_BASE_URL = "https://697af2bf0e6ff62c3c5a814d.mockapi.io";
 const NOTES_PATH = `${MOCKAPI_BASE_URL}/api/v1/notes`;
 
@@ -6,84 +8,85 @@ const NOTES_PATH = `${MOCKAPI_BASE_URL}/api/v1/notes`;
 // GET ALL NOTES
 // ==============================
 export const getNotes = async () => {
-  try {
-    const response = await fetch(NOTES_PATH);
+  const response = await fetch(NOTES_PATH);
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch notes");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching notes:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to fetch notes");
   }
+
+  return await response.json();
 };
 
 // ==============================
 // CREATE NOTE
 // ==============================
 export const createNote = async (note) => {
-  try {
-    const response = await fetch(NOTES_PATH, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(note),
-    });
+  const response = await fetch(NOTES_PATH, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(note),
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to create note");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error creating note:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to create note");
   }
+
+  return await response.json();
 };
 
 // ==============================
 // UPDATE NOTE
 // ==============================
 export const updateNote = async (noteId, note) => {
-  try {
-    const response = await fetch(`${NOTES_PATH}/${noteId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(note),
-    });
+  const response = await fetch(`${NOTES_PATH}/${noteId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(note),
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to update note");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error updating note:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to update note");
   }
+
+  return await response.json();
 };
 
 // ==============================
 // DELETE NOTE
 // ==============================
 export const deleteNote = async (noteId) => {
-  try {
-    const response = await fetch(`${NOTES_PATH}/${noteId}`, {
-      method: "DELETE",
-    });
+  const response = await fetch(`${NOTES_PATH}/${noteId}`, {
+    method: "DELETE",
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to delete note");
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error deleting note:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to delete note");
   }
+
+  return true;
+};
+
+// ==============================
+// LOGIN USER
+// ==============================
+export const loginUser = async (username, password) => {
+  const response = await fetch("https://apis.ccbp.in/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error_msg || "Login failed");
+  }
+
+  return data;
 };
