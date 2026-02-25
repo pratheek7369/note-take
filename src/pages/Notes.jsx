@@ -7,8 +7,10 @@ import './Notes.css';
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState([]);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const userId = getUserId(); // "rahul"
 
@@ -16,12 +18,22 @@ const Notes = () => {
     fetchNotes();
   }, []);
 
-  // Fetch only notes for the current user
+  useEffect(() => {
+    // Filter notes whenever searchTerm changes
+    const filtered = notes.filter(
+      (note) =>
+        note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredNotes(filtered);
+  }, [searchTerm, notes]);
+
   const fetchNotes = async () => {
     try {
       const data = await getNotes();
       const userNotes = data.filter((note) => note.user === userId);
       setNotes(userNotes);
+      setFilteredNotes(userNotes);
     } catch (err) {
       console.error(err);
     }
@@ -70,6 +82,15 @@ const Notes = () => {
       <h1>My Notes</h1>
       <button onClick={handleLogout} className="logout-btn">Logout</button>
 
+      {/* Search Bar */}
+      <input
+        type="text"
+        placeholder="Search notes..."
+        className="search-bar"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
       <div className="new-note-form">
         <input
           type="text"
@@ -86,7 +107,7 @@ const Notes = () => {
       </div>
 
       <ul className="notes-list">
-        {notes.map((note) => (
+        {filteredNotes.map((note) => (
           <li key={note.id} className="note-card">
             <h3>{note.title}</h3>
             <p>{note.content}</p>
