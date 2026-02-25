@@ -19,10 +19,9 @@ const Notes = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = notes.filter(
-      (note) =>
-        note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchTerm.toLowerCase())
+    // Search by title only
+    const filtered = notes.filter((note) =>
+      note.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredNotes(filtered);
   }, [searchTerm, notes]);
@@ -77,19 +76,19 @@ const Notes = () => {
   };
 
   return (
-    <div className="notes-container">
-      <div className="notes-header">
+    <div className="notes-page">
+      <header className="notes-header">
         <input
           type="text"
-          placeholder="Search notes..."
+          placeholder="Search by title..."
           className="search-bar"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button onClick={handleLogout} className="logout-btn">Logout</button>
-      </div>
+      </header>
 
-      <div className="new-note-form">
+      <section className="new-note-section">
         <input
           type="text"
           placeholder="Note title"
@@ -102,9 +101,9 @@ const Notes = () => {
           onChange={(e) => setNewNoteContent(e.target.value)}
         />
         <button onClick={handleAddNote}>Add Note</button>
-      </div>
+      </section>
 
-      <div className="notes-list">
+      <section className="notes-grid">
         {filteredNotes.length === 0 && <p className="no-notes">No notes found</p>}
         {filteredNotes.map((note) => (
           <div key={note.id} className="note-card">
@@ -116,7 +115,7 @@ const Notes = () => {
             </div>
           </div>
         ))}
-      </div>
+      </section>
     </div>
   );
 };
