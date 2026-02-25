@@ -1,155 +1,102 @@
-import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import NoteCard from '../components/NoteCard';
-import NoteEditor from '../components/NoteEditor';
-import { getNotes, createNote, updateNote, deleteNote } from '../services/api';
+// src/pages/Notes.jsx
+import React, { useEffect, useState } from 'react';
+import { getNotes, createNote, updateNote, deleteNote } from '../services/api.jsx';
+import { removeToken, getUserId } from '../utils/auth.jsx';
+import { useNavigate } from 'react-router-dom';
 import './Notes.css';
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
-  const [filteredNotes, setFilteredNotes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showEditor, setShowEditor] = useState(false);
-  const [editingNote, setEditingNote] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const navigate = useNavigate();
+  const userId = getUserId(); // "rahul"
 
   useEffect(() => {
-    loadNotes();
+    fetchNotes();
   }, []);
 
-  useEffect(() => {
-    filterNotes();
-  }, [searchQuery, notes]);
-
-  const loadNotes = async () => {
+  // Fetch only notes for the current user
+  const fetchNotes = async () => {
     try {
-      setLoading(true);
-      setError('');
       const data = await getNotes();
-      setNotes(data || []);
+      const userNotes = data.filter((note) => note.user === userId);
+      setNotes(userNotes);
     } catch (err) {
-      setError('Failed to load notes. Please try again.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const filterNotes = () => {
-    if (!searchQuery.trim()) {
-      setFilteredNotes(notes);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = notes.filter(
-      (note) =>
-        (note.title && note.title.toLowerCase().includes(query)) ||
-        (note.content && note.content.toLowerCase().includes(query))
-    );
-    setFilteredNotes(filtered);
+  const handleLogout = () => {
+    removeToken();
+    navigate('/login', { replace: true });
   };
 
-  const handleCreateNote = () => {
-    setEditingNote(null);
-    setShowEditor(true);
-  };
-
-  const handleEditNote = (note) => {
-    setEditingNote(note);
-    setShowEditor(true);
-  };
-
-  const handleSaveNote = async (noteData) => {
+  const handleAddNote = async () => {
+    if (!newNoteTitle.trim() || !newNoteContent.trim()) return;
     try {
-      setError('');
-      if (editingNote) {
-        await updateNote(editingNote.id, noteData);
-      } else {
-        await createNote(noteData);
-      }
-      setShowEditor(false);
-      setEditingNote(null);
-      await loadNotes();
+      await createNote({ title: newNoteTitle, content: newNoteContent, user: userId });
+      setNewNoteTitle('');
+      setNewNoteContent('');
+      fetchNotes();
     } catch (err) {
-      setError('Failed to save note. Please try again.');
       console.error(err);
     }
   };
 
-  const handleDeleteNote = async (noteId) => {
-    if (!window.confirm('Are you sure you want to delete this note?')) {
-      return;
-    }
-
+  const handleDeleteNote = async (id) => {
     try {
-      setError('');
-      await deleteNote(noteId);
-      await loadNotes();
+      await deleteNote(id);
+      fetchNotes();
     } catch (err) {
-      setError('Failed to delete note. Please try again.');
       console.error(err);
     }
   };
 
-  const handleCancelEdit = () => {
-    setShowEditor(false);
-    setEditingNote(null);
+  const handleEditNote = async (id) => {
+    const updatedTitle = prompt('Enter new title:');
+    const updatedContent = prompt('Enter new content:');
+    if (!updatedTitle || !updatedContent) return;
+    try {
+      await updateNote(id, { title: updatedTitle, content: updatedContent, user: userId });
+      fetchNotes();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="notes-page">
-      <Navbar />
-      <div className="notes-container">
-        <div className="notes-header">
-          <h2>My Notes</h2>
-          <button onClick={handleCreateNote} className="create-note-btn">
-            + New Note
-          </button>
-        </div>
+    <div className="notes-container">
+      <h1>My Notes</h1>
+      <button onClick={handleLogout} className="logout-btn">Logout</button>
 
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search notes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        {error && <div className="error-banner">{error}</div>}
-
-        {loading ? (
-          <div className="loading">Loading notes...</div>
-        ) : showEditor ? (
-          <NoteEditor
-            note={editingNote}
-            onSave={handleSaveNote}
-            onCancel={handleCancelEdit}
-          />
-        ) : (
-          <div className="notes-grid">
-            {filteredNotes.length === 0 ? (
-              <div className="empty-state">
-                {searchQuery
-                  ? 'No notes match your search.'
-                  : 'No notes yet. Create your first note!'}
-              </div>
-            ) : (
-              filteredNotes.map((note) => (
-                <NoteCard
-                  key={note.id}
-                  note={note}
-                  onEdit={handleEditNote}
-                  onDelete={handleDeleteNote}
-                />
-              ))
-            )}
-          </div>
-        )}
+      <div className="new-note-form">
+        <input
+          type="text"
+          placeholder="Note title"
+          value={newNoteTitle}
+          onChange={(e) => setNewNoteTitle(e.target.value)}
+        />
+        <textarea
+          placeholder="Note content"
+          value={newNoteContent}
+          onChange={(e) => setNewNoteContent(e.target.value)}
+        />
+        <button onClick={handleAddNote}>Add Note</button>
       </div>
+
+      <ul className="notes-list">
+        {notes.map((note) => (
+          <li key={note.id} className="note-card">
+            <h3>{note.title}</h3>
+            <p>{note.content}</p>
+            <div className="note-actions">
+              <button onClick={() => handleEditNote(note.id)}>Edit</button>
+              <button onClick={() => handleDeleteNote(note.id)}>Delete</button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
