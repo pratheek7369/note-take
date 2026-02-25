@@ -12,14 +12,13 @@ const Notes = () => {
   const [newNoteContent, setNewNoteContent] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-  const userId = getUserId(); // "rahul"
+  const userId = getUserId();
 
   useEffect(() => {
     fetchNotes();
   }, []);
 
   useEffect(() => {
-    // Filter notes whenever searchTerm changes
     const filtered = notes.filter(
       (note) =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,17 +78,16 @@ const Notes = () => {
 
   return (
     <div className="notes-container">
-      <h1>My Notes</h1>
-      <button onClick={handleLogout} className="logout-btn">Logout</button>
-
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="Search notes..."
-        className="search-bar"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="notes-header">
+        <input
+          type="text"
+          placeholder="Search notes..."
+          className="search-bar"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button onClick={handleLogout} className="logout-btn">Logout</button>
+      </div>
 
       <div className="new-note-form">
         <input
@@ -106,18 +104,19 @@ const Notes = () => {
         <button onClick={handleAddNote}>Add Note</button>
       </div>
 
-      <ul className="notes-list">
+      <div className="notes-list">
+        {filteredNotes.length === 0 && <p className="no-notes">No notes found</p>}
         {filteredNotes.map((note) => (
-          <li key={note.id} className="note-card">
+          <div key={note.id} className="note-card">
             <h3>{note.title}</h3>
             <p>{note.content}</p>
             <div className="note-actions">
               <button onClick={() => handleEditNote(note.id)}>Edit</button>
               <button onClick={() => handleDeleteNote(note.id)}>Delete</button>
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

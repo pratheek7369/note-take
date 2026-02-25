@@ -7,29 +7,30 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-.notes-container h1 {
-  text-align: center;
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  color: #2f3640;
 }
 
 .search-bar {
-  width: 100%;
+  flex: 1;
   padding: 10px;
-  margin-bottom: 20px;
+  margin-right: 15px;
   border-radius: 8px;
   border: 1px solid #dcdde1;
   font-size: 16px;
 }
 
 .logout-btn {
-  float: right;
   background-color: #e84118;
   color: white;
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .logout-btn:hover {
@@ -60,7 +61,6 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  align-self: flex-start;
   font-weight: 600;
   transition: background-color 0.3s ease;
 }
@@ -70,14 +70,14 @@
 }
 
 .notes-list {
-  list-style: none;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .note-card {
   background-color: white;
   padding: 15px;
-  margin-bottom: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
@@ -92,14 +92,17 @@
   color: #353b48;
 }
 
+.note-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .note-actions button {
-  margin-right: 8px;
   padding: 6px 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.3s ease;
 }
 
 .note-actions button:first-child {
@@ -118,4 +121,10 @@
 
 .note-actions button:last-child:hover {
   background-color: #c23616;
+}
+
+.no-notes {
+  color: #718093;
+  text-align: center;
+  font-style: italic;
 }
