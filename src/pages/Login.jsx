@@ -1,7 +1,8 @@
-import { useState } from 'react';
+// src/pages/Login.jsx
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from "../services/api.js";
-import { setToken } from "../utils/auth.js";
+import { loginUser } from "../services/api.jsx";
+import { setToken } from "../utils/auth.jsx";
 import './Login.css';
 
 const Login = () => {
@@ -51,6 +52,7 @@ const Login = () => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
               disabled={loading}
+              autoFocus
             />
           </div>
           <div className="form-group">
